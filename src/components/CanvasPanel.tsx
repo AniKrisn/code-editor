@@ -8,7 +8,7 @@ import {
   useValue,
 } from "tldraw";
 import "tldraw/tldraw.css";
-import { WatercolorShapeUtil } from "../lib/WatercolorShape";
+import { WatercolorShapeUtil } from "../canvas/WatercolorShape";
 
 interface CanvasPanelProps {
   onMount: (editor: Editor) => void;

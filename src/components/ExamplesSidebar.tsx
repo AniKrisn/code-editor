@@ -1,4 +1,4 @@
-import { examples } from '../lib/examples/index'
+import { examples } from '../examples'
 
 // Examples to show in the sidebar (in display order)
 const VISIBLE_EXAMPLES = ['Flower', 'Clock', 'Pool', 'Life', 'Sphere']

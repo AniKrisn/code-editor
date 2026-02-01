@@ -8,7 +8,7 @@ import {
 	clearCodeContext,
 	executeCode,
 	setupRuntimeErrorListener,
-} from './lib/code-executor'
+} from './editor/executor'
 
 const THEME_STORAGE_KEY = 'code-editor-theme'
 

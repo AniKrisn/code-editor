@@ -1,5 +1,5 @@
 import { Editor } from 'tldraw'
-import { createEditorAPI } from './api'
+import { createEditorAPI } from '../canvas/api'
 
 export interface ExecutionError {
 	message: string
