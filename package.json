@@ -1,0 +1,33 @@
+{
+  "name": "tldraw-code-editor",
+  "private": true,
+  "version": "0.0.0",
+  "author": {
+    "name": "Ani Krishnan",
+    "email": "anikrishnantango@gmail.com"
+  },
+  "homepage": "anikrisn.com",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.52.2",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-resizable-panels": "2.0.23",
+    "tldraw": "^3.12.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react-swc": "^3.10.2",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.1"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}

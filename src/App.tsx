@@ -1,0 +1,150 @@
+import { useEffect, useState } from 'react'
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import { Editor, useValue } from 'tldraw'
+import { CanvasPanel } from './components/CanvasPanel'
+import { CodeEditor } from './components/CodeEditor'
+import {
+	ExecutionError,
+	clearCodeContext,
+	executeCode,
+	setupRuntimeErrorListener,
+} from './lib/code-executor'
+
+const THEME_STORAGE_KEY = 'code-editor-theme'
+
+/**
+ * Main app component with split-view layout.
+ * Manages editor state and coordinates between code panel and canvas.
+ */
+export default function App() {
+	const [editor, setEditor] = useState<Editor | null>(null)
+	const [isExecuting, setIsExecuting] = useState(false)
+	const [error, setError] = useState<ExecutionError | null>(null)
+
+	// Theme state lifted to App for styling the resize handle
+	const [isDarkTheme, setIsDarkTheme] = useState(() => {
+		try {
+			const saved = localStorage.getItem(THEME_STORAGE_KEY)
+			return saved !== 'light'
+		} catch {
+			return true
+		}
+	})
+
+	// Set up runtime error listener to catch errors from setInterval/event handlers
+	useEffect(() => {
+		const cleanup = setupRuntimeErrorListener((err) => {
+			setError(err)
+		})
+		return cleanup
+	}, [])
+
+	// Get count of generated shapes reactively
+	const generatedShapeCount = useValue(
+		'generated shape count',
+		() => {
+			if (!editor) return 0
+			return editor.getCurrentPageShapes().filter((shape) => shape.meta.generated === true).length
+		},
+		[editor]
+	)
+
+	// Handle editor mount
+	const handleEditorMount = (mountedEditor: Editor) => {
+		setEditor(mountedEditor)
+
+		// Default to dark mode for the canvas
+		mountedEditor.user.updateUserPreferences({ colorScheme: 'dark' })
+	}
+
+	// Execute user code
+	const handleRun = async (code: string) => {
+		if (!editor || isExecuting) return
+
+		setIsExecuting(true)
+		setError(null)
+		try {
+			// Reset editor state before each run
+			editor.setCurrentTool('select')
+			editor.setCameraOptions({ isLocked: false })
+
+			// Clear generated shapes before each run
+			const generatedShapes = editor
+				.getCurrentPageShapes()
+				.filter((shape) => shape.meta.generated === true)
+
+			if (generatedShapes.length > 0) {
+				editor.deleteShapes(generatedShapes.map((s) => s.id))
+			}
+
+			const result = await executeCode(code, editor)
+			if (!result.success && result.error) {
+				setError(result.error)
+			}
+		} catch (err) {
+			setError({
+				message: err instanceof Error ? err.message : String(err),
+				stack: err instanceof Error ? err.stack : undefined,
+			})
+		} finally {
+			setIsExecuting(false)
+		}
+	}
+
+	// Clear all generated shapes
+	const handleClear = () => {
+		if (!editor) return
+
+		// Clear error and code context
+		setError(null)
+		clearCodeContext()
+
+		const generatedShapes = editor
+			.getCurrentPageShapes()
+			.filter((shape) => shape.meta.generated === true)
+
+		if (generatedShapes.length > 0) {
+			// Confirm if there are many shapes
+			if (
+				generatedShapes.length > 10 &&
+				!confirm(`Clear ${generatedShapes.length} generated shapes?`)
+			) {
+				return
+			}
+
+			editor.deleteShapes(generatedShapes.map((s) => s.id))
+		}
+	}
+
+	return (
+		<div className={`editor-container ${isDarkTheme ? 'theme-dark' : 'theme-light'}`}>
+			<PanelGroup direction="horizontal">
+				<Panel defaultSize={40} minSize={30} maxSize={80}>
+					<CodeEditor
+						editor={editor}
+						onRun={handleRun}
+						onClear={handleClear}
+						isExecuting={isExecuting}
+						generatedShapeCount={generatedShapeCount}
+						error={error}
+						onDismissError={() => setError(null)}
+						isDarkTheme={isDarkTheme}
+						onThemeToggle={() => {
+							const newIsDark = !isDarkTheme
+							setIsDarkTheme(newIsDark)
+							try {
+								localStorage.setItem(THEME_STORAGE_KEY, newIsDark ? 'dark' : 'light')
+							} catch {
+								// Ignore storage errors
+							}
+						}}
+					/>
+				</Panel>
+				<PanelResizeHandle className="resize-handle" />
+				<Panel minSize={20}>
+					<CanvasPanel onMount={handleEditorMount} />
+				</Panel>
+			</PanelGroup>
+		</div>
+	)
+}

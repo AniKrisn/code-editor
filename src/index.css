@@ -1,0 +1,489 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('tldraw/tldraw.css');
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family:
+		'Inter',
+		system-ui,
+		-apple-system,
+		sans-serif;
+	overscroll-behavior: none;
+}
+
+#root {
+	width: 100%;
+	height: 100vh;
+}
+
+/* Main split layout */
+.editor-container {
+	height: 100vh;
+	width: 100%;
+}
+
+/* Code panel (left side) */
+.code-panel {
+	display: flex;
+	flex-direction: column;
+	background: #1f2430;
+	color: #cbccc6;
+	height: 100%;
+	overflow: hidden;
+}
+
+/* Resize handle */
+.resize-handle {
+	width: 4px;
+	background: #101521;
+	cursor: col-resize;
+	margin-left: -0.75px;
+}
+
+.resize-handle:hover {
+	background: #34455a;
+}
+
+.resize-handle:active {
+	background: #ffcc66;
+}
+
+/* Canvas panel (right side) */
+.canvas-panel {
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+
+/* Error panel */
+.error-panel {
+	background: #2d1515;
+	border-bottom: 1px solid #5c2828;
+	flex-shrink: 0;
+	font-family: 'Inter', system-ui, sans-serif;
+}
+
+.error-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	background: #3d1f1f;
+	border-bottom: 1px solid #5c2828;
+}
+
+.error-panel-title {
+	font-size: 12px;
+	font-weight: 600;
+	color: #ff8080;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.error-panel-content {
+	padding: 12px;
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+.error-message {
+	font-size: 13px;
+	color: #ffb3b3;
+	line-height: 1.5;
+	word-break: break-word;
+}
+
+.error-location {
+	color: #ff8080;
+	font-weight: 500;
+}
+
+.error-stack-details {
+	margin-top: 8px;
+}
+
+.error-stack-details summary {
+	font-size: 11px;
+	color: #888;
+	cursor: pointer;
+	user-select: none;
+}
+
+.error-stack-details summary:hover {
+	color: #aaa;
+}
+
+.error-stack {
+	margin: 8px 0 0 0;
+	padding: 8px;
+	background: #1a1010;
+	border-radius: 4px;
+	font-size: 11px;
+	font-family: 'JetBrains Mono', monospace;
+	color: #cc9999;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.error-dismiss {
+	background: transparent;
+	border: none;
+	color: #ff8080;
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0;
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+	transition: background 0.15s ease;
+}
+
+.error-dismiss:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+/* Monaco error line highlighting */
+.error-line-highlight {
+	background: rgba(255, 0, 0, 0.15) !important;
+}
+
+.error-glyph-margin {
+	background: #ff4444;
+	border-radius: 50%;
+	margin-left: 5px;
+}
+
+/* Code panel main area with sidebar and editor */
+.code-panel-main {
+	display: flex;
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+}
+
+/* Toolbar */
+.code-toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 4px 8px;
+	background: #101521;
+	border-bottom: 1px solid #0a0d14;
+	flex-shrink: 0;
+	height: 40px;
+	min-height: 40px;
+}
+
+.toolbar-buttons {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+}
+
+.toolbar-button {
+	padding: 4px 8px;
+	background: transparent;
+	color: #666;
+	border: none;
+	cursor: pointer;
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 16px;
+	font-weight: 400;
+}
+
+.toolbar-button:hover:not(:disabled) {
+	color: #cbccc6;
+}
+
+.toolbar-button:active:not(:disabled) {
+	color: #fff;
+}
+
+.toolbar-button:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+.toolbar-button-primary {
+	color: #7fdbca;
+}
+
+.toolbar-button-primary:hover:not(:disabled) {
+	color: #b4f0e0;
+}
+
+.toolbar-button-primary:active:not(:disabled) {
+	color: #fff;
+}
+
+.live-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px !important;
+}
+
+.live-toggle svg {
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
+}
+
+.live-toggle.active {
+	color: #7fdbca;
+}
+
+.live-toggle.active:hover:not(:disabled) {
+	color: #b4f0e0;
+}
+
+.clear-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px !important;
+}
+
+.clear-button svg {
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
+}
+
+/* Code editor wrapper (Monaco container) */
+.code-editor-wrapper {
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+	min-height: 0; /* Important for flexbox to allow shrinking */
+}
+
+/* Monaco line numbers */
+.code-editor-wrapper .line-numbers {
+	opacity: 0.33;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px !important;
+}
+
+.theme-toggle svg {
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
+}
+
+/* Light theme overrides */
+.code-panel.theme-light {
+	background: #fafafa;
+	color: #5c6166;
+}
+
+.theme-light .code-toolbar {
+	background: #f0f0f0;
+	border-bottom-color: #e0e0e0;
+}
+
+.theme-light .toolbar-button {
+	background: transparent;
+	color: #999;
+	border: none;
+}
+
+.theme-light .toolbar-button:hover:not(:disabled) {
+	color: #5c6166;
+}
+
+.theme-light .toolbar-button:active:not(:disabled) {
+	color: #333;
+}
+
+.theme-light .toolbar-button-primary {
+	color: #4caf50;
+}
+
+.theme-light .toolbar-button-primary:hover:not(:disabled) {
+	color: #388e3c;
+}
+
+.theme-light .toolbar-button-primary:active:not(:disabled) {
+	color: #2e7d32;
+}
+
+.theme-light .live-toggle.active {
+	color: #4caf50;
+}
+
+.theme-light .live-toggle.active:hover:not(:disabled) {
+	color: #388e3c;
+}
+
+.theme-light .error-panel {
+	background: #fff0f0;
+	border-bottom-color: #ffcccc;
+}
+
+.theme-light .error-panel-header {
+	background: #ffe0e0;
+	border-bottom-color: #ffcccc;
+}
+
+.theme-light .error-panel-title {
+	color: #cc0000;
+}
+
+.theme-light .error-message {
+	color: #990000;
+}
+
+.theme-light .error-location {
+	color: #cc0000;
+}
+
+.theme-light .error-stack {
+	background: #fff5f5;
+	color: #993333;
+}
+
+.theme-light .error-dismiss {
+	color: #cc0000;
+}
+
+.theme-light .error-dismiss:hover {
+	background: rgba(0, 0, 0, 0.05);
+}
+
+/* Light theme resize handle */
+.editor-container.theme-light .resize-handle {
+	background: #d0d0d0;
+}
+
+.editor-container.theme-light .resize-handle:hover {
+	background: #d1e4f4;
+}
+
+.editor-container.theme-light .resize-handle:active {
+	background: #ff9940;
+}
+
+/* Examples sidebar - thin permanent bar */
+.examples-sidebar {
+	width: 115px;
+	min-width: 115px;
+	background: #0a0d14;
+	border-right: 1px solid #1a1f29;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.examples-sidebar-content {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 4px 0;
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 10px;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+.examples-sidebar-content::-webkit-scrollbar {
+	display: none;
+}
+
+.examples-category {
+	margin-bottom: 2px;
+}
+
+.examples-category-header {
+	padding: 4px 8px 2px;
+	font-size: 9px;
+	color: #444;
+	font-family: 'JetBrains Mono', monospace;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.examples-item {
+	display: block;
+	width: 100%;
+	padding: 2px 8px 2px 12px;
+	background: none;
+	border: none;
+	color: #c792ea;
+	font-size: 13px;
+	font-family: 'JetBrains Mono', monospace;
+	text-align: left;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.examples-item:hover {
+	color: #fff;
+}
+
+.examples-item:hover::before {
+	content: '>';
+	margin-left: -8px;
+	margin-right: 4px;
+	color: #666;
+}
+
+.examples-item.selected {
+	color: #7fdbca;
+}
+
+.examples-item.selected::before {
+	content: '>';
+	margin-left: -8px;
+	margin-right: 4px;
+	color: #7fdbca;
+}
+
+/* Light theme sidebar styles */
+.theme-light .examples-sidebar {
+	background: #f5f5f5;
+	border-right-color: #e0e0e0;
+}
+
+.theme-light .examples-category-header {
+	color: #999;
+}
+
+.theme-light .examples-item {
+	color: #9c27b0;
+}
+
+.theme-light .examples-item:hover {
+	color: #333;
+}
+
+.theme-light .examples-item:hover::before {
+	color: #999;
+}
+
+.theme-light .examples-item.selected {
+	color: #4caf50;
+}
+
+.theme-light .examples-item.selected::before {
+	color: #4caf50;
+}
